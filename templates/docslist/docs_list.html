@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h2 class="mb-3">Перечень контрактов :</h2><hr>
+    {% for doc in docs_list %}
+        <div class="card-header">
+            <div class="row">
+                <div class="col-md-6" >
+                    {% if doc.type_doc.id == 1 %}
+                        <h5> № {{ doc.num_contract }}  ,  Цена: {{ doc.c_contract}}</h5><br>
+                        <h5> {{ doc.name_object }} </h5>
+                    {% else %}
+                        <h7> № {{ doc.num_contract }}  ,  Цена: {{ doc.c_contract}}</h7><br>
+                        <h7> {{ doc.name_object }} </h7>
+                    {% endif %}
+                </div>
+                {% if user.is_authenticated %}
+
+                 {% else %}
+
+                {% endif %}
+
+            </div>
+        </div>
+
+    {% empty %}
+        <h1>Список пуст!</h1>
+    {% endfor %}
+
+
+
+    {% block pagination %}
+        {% if is_paginated %}
+
+            {% load bootstrap4 %}
+            {% bootstrap_pagination page_obj %}
+
+        {% endif %}
+    {% endblock pagination%}
+
+{% endblock content %}
+</html>

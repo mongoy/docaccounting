@@ -37,3 +37,10 @@ class DocsInfoView(View):
         info['ogk__sum'] = sum_ost
         info['date__today'] = d_today
         return render(request, 'index.html', context=info)
+
+
+class DocsViev(View):
+    """ Список документов"""
+    def get(self, request):
+        docs = Docs.objects.all()
+        return render(request, 'docslist/docs_list.html', {"docs_list": docs})
