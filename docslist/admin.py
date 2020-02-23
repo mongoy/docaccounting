@@ -7,7 +7,7 @@ class ContractAdmin(admin.ModelAdmin):
     """Перечень дорог"""
     list_display = [field.name for field in Docs._meta.fields]  # все поля выводит в цикле
     search_fields = ["num_contract"]
-    list_filter = ["num_contract", "y_contract"]
+    list_filter = ["num_contract", "year"]
     list_per_page = 5  # кол-во записей на странице
 
 
