@@ -3,7 +3,7 @@ from .models import *
 
 
 @admin.register(Docs)
-class ContractAdmin(admin.ModelAdmin):
+class DocsAdmin(admin.ModelAdmin):
     """Перечень дорог"""
     list_display = [field.name for field in Docs._meta.fields]  # все поля выводит в цикле
     search_fields = ["num_contract"]
@@ -32,7 +32,7 @@ class ContractorAdmin(admin.ModelAdmin):
 
 
 @admin.register(StatusDoc)
-class StatusContractAdmin(admin.ModelAdmin):
+class StatusDocsAdmin(admin.ModelAdmin):
     """ Статус контракта """
     list_display = ("id", "name")
 

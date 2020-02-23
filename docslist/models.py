@@ -13,8 +13,8 @@ class TypeDoc(models.Model):
         return '{}'.format(self.name)
 
     class Meta:
-        verbose_name = "Документ"
-        verbose_name_plural = "Документы"
+        verbose_name = "Тип документа"
+        verbose_name_plural = "Типы документов"
         ordering = ('name',)  # сортировка
 
 
@@ -75,7 +75,7 @@ class Docs(models.Model):
     work_contract = models.BooleanField('В работе')
     failures = models.BooleanField('Срыв сроков')
     executed = models.BooleanField('Исполнен')
-    file_obj = models.FileField('Файл документа', upload_to='files/'),
+    file_obj = models.FileField('Файл документа', upload_to='')
     url = models.SlugField(max_length=130, unique=True)
     data_stamp = models.DateTimeField(auto_now_add=True)
 
@@ -86,7 +86,7 @@ class Docs(models.Model):
         return reverse("docs_detail", kwargs={"slug": self.url})
 
     class Meta:
-        verbose_name = "Госконтракт"
-        verbose_name_plural = "Госконтракты"
+        verbose_name = "Документ"
+        verbose_name_plural = "Документы"
         ordering = ('year', 'num_contract',)  # сортировка
 
