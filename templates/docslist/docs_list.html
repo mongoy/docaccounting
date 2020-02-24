@@ -14,7 +14,7 @@
                         <h7> {{ doc.name_object }} </h7>
                     {% endif %}
                 </div>
-                    <div class="col-md-2"><a href="#" class="btn btn-sm btn-outline-info my-2 my-sm-0" role="group" aria-disabled="true">Просмотр</a></div>
+                    <div class="col-md-2"><a href="{% url 'doc-detail' doc.id %}" class="btn btn-sm btn-outline-info my-2 my-sm-0" role="group" aria-disabled="true">Просмотр</a></div>
                     <div class="col-md-2"><a href="#" class="btn btn-sm btn-outline-info my-2 my-sm-0" role="group" aria-disabled="true">ПДФ</a></div>
                     <div class="col-md-2"><a href="#" class="btn btn-sm btn-outline-danger my-2 my-sm-0" role="group" aria-disabled="true">Изменить</a></div>
 

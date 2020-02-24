@@ -58,11 +58,18 @@ class Year:
         return Docs.objects.filter(work_contract=True).values("year")
 
 
+class Ispolnenie:
+    """год подписания документа"""
+    def get_isp(self):
+        return Docs.objects.filter(work_contract=True, type_doc=3).aggregate(Sum('c_contract'))
+
+
 class DocDetailView(DetailView):
     """Полное описание документа"""
     # def get(self, request, pk):
     #     doc = Docs.objects.get(pk=id)
     #     return render(request, 'docslist/docs_detail.html', {"doc": doc})
+
     model = Docs
     slug_field = "url"
 
@@ -70,7 +77,17 @@ class DocDetailView(DetailView):
         context = super().get_context_data(**kwargs)
         d_today = datetime.date.today()
         context['d_today'] = d_today
-        context['sum_ost'] = 666
+        # исполнение = сумма всех КС
+        context['isp'] = 0
+        sum_isp = Docs.objects.filter(work_contract=True, type_doc=3, num_contract=kwargs['object'].num_contract).aggregate(Sum('c_contract'))
+        # проверка QuerySet []
+        if sum_isp['c_contract__sum'] is None:
+            context['isp'] = 0
+        else:
+            context['isp'] = sum_isp['c_contract__sum']
+        # остатки по документу
+        context['sum_ost'] = kwargs['object'].c_contract - context['isp']
+
         obj_key = self.kwargs.get('pk', None)
         c_num = Docs.objects.filter(work_contract=True, id=obj_key).exclude(type_doc=3)
         # if self.request.user.is_authenticated:
@@ -80,11 +97,3 @@ class DocDetailView(DetailView):
         return context
 
 
-# class DocDetailView(Year, DetailView):
-#     """Полное описание документа"""
-#     model = Docs
-#     slug_field = "url"
-#
-#     def get_context_data(self, **kwargs):
-#         context = super().get_context_data(**kwargs)
-#         return context

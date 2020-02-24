@@ -1,21 +1,27 @@
 {% extends "base.html" %}
 {% load crispy_forms_tags %}
 {% block content %}
-    <h1 class="mb-3">Государственный контракт: &nbsp; </h1>
+    <h1 class="mb-3">{{ docs.type_doc.description }} :</h1>
         <div class="card mb-1">
-        {% comment %}
-            <p class="card-header"><strong> : &nbsp; {{ road.nregion }}</strong></p>
-            <p class="card-header"><strong>Тип дороги : &nbsp; {{ road.troad }}</strong></p>
-            <p class="card-header"><strong>Протяженность : &nbsp; {{ road.lroad }} км </strong></p>
-            <p class="card-header"><strong>Стоимость на {{ d_today }} : </strong></p>
-            <p class="card-header">&nbsp;&nbsp;&nbsp; Балансовая : {{ road.broad }} руб. </p>
-            <p class="card-header">&nbsp;&nbsp;&nbsp; Остаточная : {{ summ_ost }} руб. </p>
-        {% endcomment %}
-        </div><br><hr>
+            <p class="card-header"><strong> № : &nbsp; {{ docs.num_contract }}</strong></p>
+            <p class="card-header"><strong>Наименование объекта : &nbsp; {{ docs.title }}</strong></p>
+            <p class="card-header"><strong>Год : &nbsp; {{ docs.year }}</strong></p>
+            <p class="card-header"><strong>Стоимость на {{ docs.c_contract }} руб.</strong></p>
+            <p class="card-header"><strong>Сфера : &nbsp; {{ docs.in_contract }}</strong></p>
+            <p class="card-header"><strong>Подрядчик : &nbsp; {{ docs.uch_contract }}</strong></p>
+            <p class="card-header"><strong>Год : &nbsp; {{ docs.year }}</strong></p>
+            <p class="card-header"><strong>Дата окончания работ : &nbsp; {{ docs.out_work }}</strong></p>
+            <p class="card-header"><strong>По состоянию на {{ d_today }} : </strong></p>
+            <p class="card-header">&nbsp;&nbsp;&nbsp; Статус : {{ docs.stat_contract }} </p>
+            {% if docs.type_doc_id == 1 %}
+                <p class="card-header">&nbsp;&nbsp;&nbsp; Исполнение : {{ isp }} руб. </p>
+                <p class="card-header">&nbsp;&nbsp;&nbsp; Остаточная : {{ sum_ost }} руб. </p>
+            {% endif %}
+         </div><br><hr>
     <div class="card-header">
         <div class="row">
             <div class="col-1"></div>
-            <div class="col-2"><a href="#" class="btn btn-sm btn-outline-info my-2 my-sm-0" aria-disabled="true">Показатели контракта</a></div>
+            <!--<div class="col-2"><a href="#" class="btn btn-sm btn-outline-info my-2 my-sm-0" aria-disabled="true">Показатели контракта</a></div>-->
             <div class="col-3"><a href="{% url 'docs-list' %}" class="btn btn-outline-success my-1 my-sm-0" aria-disabled="true">Перечень контрактов</a></div>
         </div>
     </div>
