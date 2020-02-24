@@ -39,8 +39,52 @@ class DocsInfoView(View):
         return render(request, 'index.html', context=info)
 
 
-class DocsViev(View):
+class DocsView(ListView):
     """ Список документов"""
-    def get(self, request):
-        docs = Docs.objects.all()
-        return render(request, 'docslist/docs_list.html', {"docs_list": docs})
+    # def get(self, request):
+    #     docs = Docs.objects.all()
+    #     return render(request, 'docslist/docs_list.html', {"docs_list": docs})
+    model = Docs
+    # рабочие контракты без КС
+    queryset = Docs.objects.all().filter(work_contract=True).exclude(type_doc=3)
+
+    template_name = 'docslist/docs_list.html'
+    paginate_by = 5
+
+
+class Year:
+    """год подписания документа"""
+    def get_years(self):
+        return Docs.objects.filter(work_contract=True).values("year")
+
+
+class DocDetailView(DetailView):
+    """Полное описание документа"""
+    # def get(self, request, pk):
+    #     doc = Docs.objects.get(pk=id)
+    #     return render(request, 'docslist/docs_detail.html', {"doc": doc})
+    model = Docs
+    slug_field = "url"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        d_today = datetime.date.today()
+        context['d_today'] = d_today
+        context['sum_ost'] = 666
+        obj_key = self.kwargs.get('pk', None)
+        c_num = Docs.objects.filter(work_contract=True, id=obj_key).exclude(type_doc=3)
+        # if self.request.user.is_authenticated:
+        #     return context
+        # else:
+        #     return Contracts.objects.none()
+        return context
+
+
+# class DocDetailView(Year, DetailView):
+#     """Полное описание документа"""
+#     model = Docs
+#     slug_field = "url"
+#
+#     def get_context_data(self, **kwargs):
+#         context = super().get_context_data(**kwargs)
+#         return context

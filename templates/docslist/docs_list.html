@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 
 {% block content %}
-<h2 class="mb-3">Перечень контрактов :</h2><hr>
+<h2 class="mb-3">Перечень документов :</h2><hr>
     {% for doc in docs_list %}
         <div class="card-header">
             <div class="row">
@@ -14,6 +14,10 @@
                         <h7> {{ doc.name_object }} </h7>
                     {% endif %}
                 </div>
+                    <div class="col-md-2"><a href="#" class="btn btn-sm btn-outline-info my-2 my-sm-0" role="group" aria-disabled="true">Просмотр</a></div>
+                    <div class="col-md-2"><a href="#" class="btn btn-sm btn-outline-info my-2 my-sm-0" role="group" aria-disabled="true">ПДФ</a></div>
+                    <div class="col-md-2"><a href="#" class="btn btn-sm btn-outline-danger my-2 my-sm-0" role="group" aria-disabled="true">Изменить</a></div>
+
                 {% if user.is_authenticated %}
 
                  {% else %}
