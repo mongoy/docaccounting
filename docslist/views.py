@@ -97,3 +97,20 @@ class DocDetailView(DetailView):
         return context
 
 
+class DisplayPdfView(BaseDetailView):
+    """ Вывод на экран скана контракта в формате PDF"""
+
+    def get(self, request, *args, **kwargs):
+        obj_key = self.kwargs.get('pk', None)  # обращение к именованному аргументу pk, переданному по URL-адресу
+        pdf = get_object_or_404(Docs, id=obj_key)  # Эта строка получает фактический объект модели pdf
+        # if pdf.type_doc_id == 1:
+        # file_name = pdf.y_contract + '\\' + pdf.num_contract + '.pdf'  # Папка год + имя файла + расширение
+        file_name = 'files\\' + str(pdf.year) + '\\' + str(pdf.file_obj.name)  # Папка год + имя файла
+        print(file_name)
+        # else:
+        #     file_name = pdf.y_contract + '\\' + pdf.num_contract + '.' + pdf.name_object + '.pdf'
+        # Папка год + имя файла + расширение
+        path = os.path.join(settings.MEDIA_ROOT, file_name)  # полный путь к файлу
+        response = FileResponse(open(path, 'rb'), content_type="application/pdf")
+        response["Content-Disposition"] = "filename={}".format(file_name)
+        return response
