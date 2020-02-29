@@ -42,7 +42,7 @@
             <a class="nav-link" href="{% url 'index' %}" tabindex="-1" aria-disabled="true">Отмена </a>
           </li>
         </ul>
-        <form class="form-inline my-2 my-lg-0" action="#" method="GET">
+        <form class="form-inline my-2 my-lg-0" action="{% url "search-results" %}" method="GET">
           <input class="form-control mr-sm-2" type="text" placeholder="Поиск ..." aria-label="Search" name="q">
           <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Поиск</button>
         </form>

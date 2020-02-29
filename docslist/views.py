@@ -16,8 +16,26 @@ from django.views.generic.detail import BaseDetailView
 # пагинация
 from django.shortcuts import render, get_object_or_404
 
-from .models import Docs
+from .models import Docs, Initiator, TypeDoc
 from django.http import FileResponse, Http404
+
+
+class FilterParameters:
+    """год подписания документа"""
+    def get_years(self):
+        return Docs.objects.values('year').annotate(count=Count('year')).order_by()
+
+    """инициатор создания документа"""
+    def get_initiator(self):
+        return Initiator.objects.all()
+
+    """вид документа"""
+    def get_type(self):
+        return TypeDoc.objects.exclude(id=3)
+
+    # """год подписания документа"""
+    # def get_isp(self):
+    #     return Docs.objects.filter(work_contract=True, type_doc=3).aggregate(Sum('c_contract'))
 
 
 class DocsInfoView(View):
@@ -39,7 +57,18 @@ class DocsInfoView(View):
         return render(request, 'index.html', context=info)
 
 
-class DocsView(ListView):
+class FilterMoviesView(FilterParameters, ListView):
+    """Фильтр документов"""
+    def get_queryset(self):
+        queryset = Docs.objects.filter(
+            Q(year__in=self.request.GET.getlist("year")) |
+            Q(ini_contract__name__in=self.request.GET.getlist("initiator")) |
+            Q(type_doc__name__in=self.request.GET.getlist("typedoc"))
+        )
+        return queryset
+
+
+class DocsView(FilterParameters, ListView):
     """ Список документов"""
     # def get(self, request):
     #     docs = Docs.objects.all()
@@ -50,18 +79,6 @@ class DocsView(ListView):
 
     template_name = 'docslist/docs_list.html'
     paginate_by = 5
-
-
-class Year:
-    """год подписания документа"""
-    def get_years(self):
-        return Docs.objects.filter(work_contract=True).values("year")
-
-
-class Ispolnenie:
-    """год подписания документа"""
-    def get_isp(self):
-        return Docs.objects.filter(work_contract=True, type_doc=3).aggregate(Sum('c_contract'))
 
 
 class DocDetailView(DetailView):
@@ -114,3 +131,35 @@ class DisplayPdfView(BaseDetailView):
         response = FileResponse(open(path, 'rb'), content_type="application/pdf")
         response["Content-Disposition"] = "filename={}".format(file_name)
         return response
+
+
+class SearchResultsView(View):
+    template_name = 'docslist/search_results.html'
+
+    # @login_required
+    def get(self, request, *args, **kwargs):
+        context = {}
+
+        question = request.GET.get('q')
+        if question is not None:  # поиск по номеру, названию и усастнику
+            search_contracts = Docs.objects.filter(
+                Q(num_contract__icontains=question) |
+                Q(title__icontains=question) |
+                Q(ini_contract__name__icontains=question) |
+                Q(uch_contract__name__icontains=question))
+
+            # формируем строку URL, которая будет содержать последний запрос
+            # Это важно для корректной работы пагинации
+            context['last_question'] = '?q=%s' % question
+
+            current_page = Paginator(search_contracts, 3)
+
+            page = request.GET.get('page')
+            try:
+                context['contract_lists'] = current_page.page(page)
+            except PageNotAnInteger:
+                context['contract_lists'] = current_page.page(1)
+            except EmptyPage:
+                context['contract_lists'] = current_page.page(current_page.num_pages)
+
+        return render(None, template_name=self.template_name, context=context)

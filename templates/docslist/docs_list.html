@@ -2,45 +2,87 @@
 
 {% block content %}
 <h2 class="mb-3">Перечень документов :</h2><hr>
-    {% for doc in docs_list %}
-        <div class="card-header">
-            <div class="row">
-                <div class="col-md-6" >
-                    {% if doc.type_doc.id == 1 %}
-                        <h5> № {{ doc.num_contract }}  ,  Цена: {{ doc.c_contract}}</h5><br>
-                        <h5> {{ doc.name_object }} </h5>
-                    {% else %}
-                        <h7> № {{ doc.num_contract }}  ,  Цена: {{ doc.c_contract}}</h7><br>
-                        <h7> {{ doc.name_object }} </h7>
-                    {% endif %}
+    <div class="row">
+        <div class="col-md-2" >
+            <form action="{% url 'filter' %}" method="get">
+            <h6> Направления :</h6>
+                <div>
+                    <ul>
+                        {% for initiator in view.get_initiator %}
+                            <li class="editContent">
+                                <input type="checkbox" class="checked" name="initiator" value="{{ initiator.name }}">
+                                <span class="span editContent">{{ initiator.name }}</span>
+                            </li>
+                        {% endfor %}
+                    </ul>
                 </div>
-                    <div class="col-md-2"><a href="{% url 'doc-detail' doc.id %}" class="btn btn-sm btn-outline-info my-2 my-sm-0" role="group" aria-disabled="true">Просмотр</a></div>
-                    <div class="col-md-2"><a href="{% url 'con-pdf-view' doc.id %}" class="btn btn-sm btn-outline-info my-2 my-sm-0" role="group" aria-disabled="true">ПДФ</a></div>
-                    <div class="col-md-2"><a href="#" class="btn btn-sm btn-outline-danger my-2 my-sm-0" role="group" aria-disabled="true">Изменить</a></div>
+            <h6> Года :</h6>
+                <div>
+                    <ul>
+                        {% for doc in view.get_years %}
+                            <li class="editContent">
+                                <input type="checkbox" class="checked" name="year" value="{{ doc.year }}">
+                                <span class="span editContent">{{ doc.year }}</span>
+                            </li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            <h6> Документ :</h6>
+                <div>
+                    <ul>
+                        {% for typedoc in view.get_type %}
+                            <li class="editContent">
+                                <input type="checkbox" class="checked" name="typedoc" value="{{ typedoc.name }}">
+                                <span class="span editContent">{{ typedoc.name }}</span>
+                            </li>
+                        {% endfor %}
+                    </ul>
+                </div>
 
-                {% if user.is_authenticated %}
+            <button type="submit">Отбор</button>
+            </form>
+        </div>
+        <div class="col-md-10">
 
-                 {% else %}
+            {% for doc in docs_list %}
+                <div class="card-header">
+                    <div class="row">
+                        <div class="col-md-6" >
+                            {% if doc.type_doc.id == 1 %}
+                                <h5> № {{ doc.num_contract }} , Цена: {{ doc.c_contract}} руб.</h5><br>
+                                <h5> {{ doc.name_object }} </h5>
+                            {% else %}
+                                <h7> № {{ doc.num_contract }}  ,  Цена: {{ doc.c_contract}} руб.</h7><br>
+                                <h7> {{ doc.name_object }} </h7>
+                            {% endif %}
+                        </div>
+                            <div class="col-md-2"><a href="{% url 'doc-detail' doc.id %}" class="btn btn-sm btn-outline-info my-2 my-sm-0" role="group" aria-disabled="true">Просмотр</a></div>
+                            <div class="col-md-2"><a href="{% url 'doc-pdf-view' doc.id %}" class="btn btn-sm btn-outline-info my-2 my-sm-0" role="group" aria-disabled="true">ПДФ</a></div>
+                            <div class="col-md-2"><a href="#" class="btn btn-sm btn-outline-danger my-2 my-sm-0" role="group" aria-disabled="true">Изменить</a></div>
+
+                        {% if user.is_authenticated %}
+
+                         {% else %}
+
+                        {% endif %}
+
+                    </div>
+                </div>
+
+            {% empty %}
+                <h1>Список пуст!</h1>
+            {% endfor %}
+
+
+            {% block pagination %}
+                {% if is_paginated %}
+
+                    {% load bootstrap4 %}
+                    {% bootstrap_pagination page_obj %}
 
                 {% endif %}
+            {% endblock pagination%}
 
-            </div>
         </div>
-
-    {% empty %}
-        <h1>Список пуст!</h1>
-    {% endfor %}
-
-
-
-    {% block pagination %}
-        {% if is_paginated %}
-
-            {% load bootstrap4 %}
-            {% bootstrap_pagination page_obj %}
-
-        {% endif %}
-    {% endblock pagination%}
-
+    </div>
 {% endblock content %}
-</html>

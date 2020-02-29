@@ -1,12 +1,14 @@
 from django.urls import path
 from django.conf import settings
 from django.conf.urls.static import static
-from .views import DocsInfoView, DocsView, DocDetailView, DisplayPdfView
+from .views import DocsInfoView, DocsView, DocDetailView, DisplayPdfView, SearchResultsView, FilterMoviesView
 
 
 urlpatterns = [
     path('', DocsInfoView.as_view(), name='index'),
     path('list/', DocsView.as_view(), name='docs-list'),
     path('list/details/<int:pk>/', DocDetailView.as_view(), name='doc-detail'),
-    path('list/pdf/<int:pk>/', DisplayPdfView.as_view(), name='con-pdf-view'),
+    path('list/pdf/<int:pk>/', DisplayPdfView.as_view(), name='doc-pdf-view'),
+    path('search/', SearchResultsView.as_view(), name='search-results'),
+    path('filter/', FilterMoviesView.as_view(), name='filter'),
 ]
