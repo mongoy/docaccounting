@@ -6,7 +6,7 @@ from django.conf import settings
 from django.contrib.auth.decorators import login_required
 from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 from django.http import HttpResponse
-from django.contrib import messages
+from django.contrib import messages, auth
 from django.db.models import Sum, Count, Q
 from django.urls import reverse_lazy
 from django.views.generic import ListView, DetailView, UpdateView, CreateView
@@ -37,10 +37,17 @@ class FilterParameters:
     # def get_isp(self):
     #     return Docs.objects.filter(work_contract=True, type_doc=3).aggregate(Sum('c_contract'))
 
+    def home(request, page_number=1):
+        docs = Docs.objects.all()
+        current_page = Paginator(docs, 5)  # создаим переменную, которая будет содержать 2 статьи из всего обьекта
+        docs_list = current_page.page(page_number)
+        username = auth.get_user(request).username
+        context = {'docs': docs_list, 'username': username}
+        return render(request, 'docslist/docs_list.html', context)
+
 
 class DocsInfoView(View):
     """ Сводная информация на главной странице """
-
     # def get(self, request, *args, **kwargs):
     @staticmethod
     def get(request):
@@ -57,26 +64,35 @@ class DocsInfoView(View):
         return render(request, 'index.html', context=info)
 
 
-class FilterMoviesView(FilterParameters, ListView):
+class FilterDocsView(FilterParameters, ListView):
     """Фильтр документов"""
+    paginate_by = 5
+
     def get_queryset(self):
         queryset = Docs.objects.filter(
             Q(year__in=self.request.GET.getlist("year")) |
             Q(ini_contract__name__in=self.request.GET.getlist("initiator")) |
             Q(type_doc__name__in=self.request.GET.getlist("typedoc"))
-        )
+        ).distinct()
         return queryset
 
+    def get_context_data(self, *args, **kwargs):
+        context = super().get_context_data(*args, **kwargs)
+        context["year"] = ''.join([f"year={x}&" for x in self.request.GET.getlist("year")])
+        context["initiator"] = ''.join([f"initiator={x}&" for x in self.request.GET.getlist("initiator")])
+        context["typedoc"] = ''.join([f"typedoc={x}&" for x in self.request.GET.getlist("typedoc")])
+        return context
 
-class DocsView(FilterParameters, ListView):
+
+class DocsListView(FilterParameters, ListView):
     """ Список документов"""
     # def get(self, request):
     #     docs = Docs.objects.all()
     #     return render(request, 'docslist/docs_list.html', {"docs_list": docs})
-    model = Docs
-    # рабочие контракты без КС
-    queryset = Docs.objects.all().filter(work_contract=True).exclude(type_doc=3)
-
+    #  model = Docs
+    # рабочие контракты, допы без КС
+    queryset = Docs.objects.filter(work_contract=True).exclude(type_doc=3)
+    context_object_name = 'docs'
     template_name = 'docslist/docs_list.html'
     paginate_by = 5
 
@@ -141,7 +157,7 @@ class SearchResultsView(View):
         context = {}
 
         question = request.GET.get('q')
-        if question is not None:  # поиск по номеру, названию и усастнику
+        if question is not None:  # поиск по номеру, названию и участнику
             search_contracts = Docs.objects.filter(
                 Q(num_contract__icontains=question) |
                 Q(title__icontains=question) |
@@ -152,14 +168,14 @@ class SearchResultsView(View):
             # Это важно для корректной работы пагинации
             context['last_question'] = '?q=%s' % question
 
-            current_page = Paginator(search_contracts, 3)
+            current_page = Paginator(search_contracts, 5)
 
             page = request.GET.get('page')
             try:
-                context['contract_lists'] = current_page.page(page)
+                context['docs_lists'] = current_page.page(page)
             except PageNotAnInteger:
-                context['contract_lists'] = current_page.page(1)
+                context['docs_lists'] = current_page.page(1)
             except EmptyPage:
-                context['contract_lists'] = current_page.page(current_page.num_pages)
+                context['docs_lists'] = current_page.page(current_page.num_pages)
 
         return render(None, template_name=self.template_name, context=context)
