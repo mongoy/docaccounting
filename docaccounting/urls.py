@@ -21,6 +21,7 @@ from django.conf.urls.static import static
 urlpatterns = [
     path('', include('docslist.urls')),
     path('admin/', admin.site.urls),
+    path('account/', include('account.urls')),
 ]
 
 # только в режиме DEBUG для Upload

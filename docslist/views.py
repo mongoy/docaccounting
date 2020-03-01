@@ -12,11 +12,12 @@ from django.urls import reverse_lazy
 from django.views.generic import ListView, DetailView, UpdateView, CreateView
 from django.views.generic.base import View
 from django.views.generic.detail import BaseDetailView
-# from .forms import ContractCreatForm, ContractForm
+from .forms import DocsForm, DocsCreatForm
 # пагинация
 from django.shortcuts import render, get_object_or_404
 
 from .models import Docs, Initiator, TypeDoc
+
 from django.http import FileResponse, Http404
 
 
@@ -37,7 +38,7 @@ class FilterParameters:
     # def get_isp(self):
     #     return Docs.objects.filter(work_contract=True, type_doc=3).aggregate(Sum('c_contract'))
 
-    def home(request, page_number=1):
+    def home(self, request, page_number=1):
         docs = Docs.objects.all()
         current_page = Paginator(docs, 5)  # создаим переменную, которая будет содержать 2 статьи из всего обьекта
         docs_list = current_page.page(page_number)
@@ -86,10 +87,6 @@ class FilterDocsView(FilterParameters, ListView):
 
 class DocsListView(FilterParameters, ListView):
     """ Список документов"""
-    # def get(self, request):
-    #     docs = Docs.objects.all()
-    #     return render(request, 'docslist/docs_list.html', {"docs_list": docs})
-    #  model = Docs
     # рабочие контракты, допы без КС
     queryset = Docs.objects.filter(work_contract=True).exclude(type_doc=3)
     context_object_name = 'docs'
@@ -99,10 +96,6 @@ class DocsListView(FilterParameters, ListView):
 
 class DocDetailView(DetailView):
     """Полное описание документа"""
-    # def get(self, request, pk):
-    #     doc = Docs.objects.get(pk=id)
-    #     return render(request, 'docslist/docs_detail.html', {"doc": doc})
-
     model = Docs
     slug_field = "url"
 
@@ -179,3 +172,42 @@ class SearchResultsView(View):
                 context['docs_lists'] = current_page.page(current_page.num_pages)
 
         return render(None, template_name=self.template_name, context=context)
+
+
+class DocUpdateView(UpdateView):
+    """Внесение изменений"""
+    model = Docs
+    # form_class = DocsForm
+    fields = '__all__'  # все поля
+    template_name_suffix = '_form'
+    success_url = reverse_lazy('docs-list')
+
+    #
+    # # @login_required
+    # def get_queryset(self):
+    #     if self.request.user.is_authenticated:
+    #         return Docs.objects.all()
+    #     else:
+    #         return Docs.objects.none()
+    #
+    # # @login_required
+    # def form_valid(self, form):
+    #     result = super().form_valid(form)
+    #     messages.success(
+    #         self.request, '{}'.format(form.instance))
+    #     return result
+
+
+class DocCreateView(CreateView):
+    """Заполнение аттрибутов нового документа"""
+    model = Docs
+    # form_class = DocsCreatForm
+    fields = '__all__'  # все поля
+    template_name_suffix = '_form'
+    success_url = reverse_lazy('docs-list')
+
+    # def form_valid(self, form):
+    #     result = super().form_valid(form)
+    #     messages.success(
+    #         self.request, '{}'.format(form.instance))
+    #     return result

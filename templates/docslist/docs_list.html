@@ -58,12 +58,10 @@
                         </div>
                             <div class="col-md-2"><a href="{% url 'doc-detail' doc.id %}" class="btn btn-sm btn-outline-info my-2 my-sm-0" role="group" aria-disabled="true">Просмотр</a></div>
                             <div class="col-md-2"><a href="{% url 'doc-pdf-view' doc.id %}" class="btn btn-sm btn-outline-info my-2 my-sm-0" role="group" aria-disabled="true">ПДФ</a></div>
-                            <div class="col-md-2"><a href="#" class="btn btn-sm btn-outline-danger my-2 my-sm-0" role="group" aria-disabled="true">Изменить</a></div>
 
-                        {% if user.is_authenticated %}
 
-                         {% else %}
-
+                        {% if request.user.is_authenticated %}
+                            <div class="col-md-2"><a href="{% url 'doc-update' doc.id %}" class="btn btn-sm btn-outline-danger my-2 my-sm-0" role="group" aria-disabled="true">Изменить</a></div>
                         {% endif %}
 
                     </div>
@@ -72,7 +70,13 @@
             {% empty %}
                 <h1>Список пуст!</h1>
             {% endfor %}
-
+            <br>
+                <div class="row">
+                    {% if request.user.is_authenticated %}
+                        <div class="col"><a href="{% url 'doc-create' %}" class="btn btn-outline-danger my-1 my-sm-0" aria-disabled="true">Создать</a></div>
+                    {% endif %}
+                </div>
+            <br>
 
             {% block pagination %}
                 {% if is_paginated %}

@@ -1,0 +1,25 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+
+{% block content %}
+    <h2 class="mb-3">{{ docs.type_doc }} : </h2>
+    <h5>{{ docs.name_object }}</h5>
+    <form method="post" enctype="multipart/form-data">
+      {% csrf_token %}
+        <div class="card-header">
+          <div class="row">
+            <div class="col-12">
+              {{ form|crispy}}
+            </div>
+          </div>
+          <br>
+          <div class="row">
+            <div class="col-12">
+              <button class="btn btn-outline-primary">Сохранить</button>
+              <a href="{% url 'docs-list' %}" class="btn btn-outline-success my-1 my-sm-0">Отмена</a>
+            </div>
+          </div>
+        </div>
+    </form>
+
+{% endblock %}
