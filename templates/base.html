@@ -48,7 +48,7 @@
         </form>
 
         {% if request.user.is_authenticated %}
-            {% comment %}<a class="nav-item nav-link" href="{% url "profile" %}">Профиль {{ user.username }}</a>{% endcomment %}
+            <a class="nav-item nav-link" href="#">{{ user.username }}</a>
             <a class="nav-item nav-link" href="{% url "logout" %}">Выход</a>
 
         {% else %}

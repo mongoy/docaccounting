@@ -52,7 +52,7 @@ class DocsInfoView(View):
     # def get(self, request, *args, **kwargs):
     @staticmethod
     def get(request):
-        # рабочие контракты без допов
+        # рабочие контракты без КС
         info = Docs.objects.all().filter(work_contract=True).exclude(type_doc=3).aggregate(
             Count('id', distinct=True), Sum('c_contract'))
         qs = Docs.objects.all().filter(work_contract=True, type_doc=1)
@@ -62,6 +62,12 @@ class DocsInfoView(View):
             sum_ost += rw.c_contract
         info['ogk__sum'] = sum_ost
         info['date__today'] = d_today
+
+        #
+        failures = Docs.objects.filter(work_contract=True, out_work__lte=d_today).exclude(type_doc=3).aggregate(
+            Count('id', distinct=True), Sum('c_contract'))
+        info['failures'] = failures['id__count']
+
         return render(request, 'index.html', context=info)
 
 
