@@ -16,7 +16,7 @@ from .forms import DocsForm, DocsCreatForm
 # пагинация
 from django.shortcuts import render, get_object_or_404
 
-from .models import Docs, Initiator, TypeDoc
+from .models import Docs, Initiator, TypeDoc, StatusDoc
 
 from django.http import FileResponse, Http404
 
@@ -53,9 +53,9 @@ class DocsInfoView(View):
     @staticmethod
     def get(request):
         # рабочие контракты без КС
-        info = Docs.objects.all().filter(work_contract=True).exclude(type_doc=3).aggregate(
+        info = Docs.objects.all().filter(stat_contract=2).exclude(type_doc=3).aggregate(
             Count('id', distinct=True), Sum('c_contract'))
-        qs = Docs.objects.all().filter(work_contract=True, type_doc=1)
+        qs = Docs.objects.all().filter(stat_contract=2, type_doc=1)
         d_today = datetime.date.today()
         sum_ost = 0
         for rw in qs:
@@ -63,10 +63,17 @@ class DocsInfoView(View):
         info['ogk__sum'] = sum_ost
         info['date__today'] = d_today
 
-        #
-        failures = Docs.objects.filter(work_contract=True, out_work__lte=d_today).exclude(type_doc=3).aggregate(
+        # документы подписаны
+        signed = Docs.objects.all().filter(stat_contract=1).exclude(type_doc=3).aggregate(
             Count('id', distinct=True), Sum('c_contract'))
-        info['failures'] = failures['id__count']
+        info['signed__count'] = signed['id__count']
+        info['signed__sum'] = signed['c_contract__sum']
+
+        # документы срыв сроков
+        failures = Docs.objects.filter(stat_contract=4) | Docs.objects.filter(out_work__lte=d_today)
+        failures = failures.exclude(type_doc=3).aggregate(Count('id', distinct=True), Sum('c_contract'))
+        info['fail__count'] = failures['id__count']
+        info['fail__sum'] = failures['c_contract__sum']
 
         return render(request, 'index.html', context=info)
 
@@ -79,7 +86,8 @@ class FilterDocsView(FilterParameters, ListView):
         queryset = Docs.objects.filter(
             Q(year__in=self.request.GET.getlist("year")) |
             Q(ini_contract__name__in=self.request.GET.getlist("initiator")) |
-            Q(type_doc__name__in=self.request.GET.getlist("typedoc"))
+            Q(type_doc__name__in=self.request.GET.getlist("typedoc")) |
+            Q(failures__in=self.request.GET.getlist("failures"))
         ).distinct()
         return queryset
 
@@ -88,13 +96,14 @@ class FilterDocsView(FilterParameters, ListView):
         context["year"] = ''.join([f"year={x}&" for x in self.request.GET.getlist("year")])
         context["initiator"] = ''.join([f"initiator={x}&" for x in self.request.GET.getlist("initiator")])
         context["typedoc"] = ''.join([f"typedoc={x}&" for x in self.request.GET.getlist("typedoc")])
+        context["failures"] = ''.join([f"failures={x}&" for x in self.request.GET.getlist("failures")])
         return context
 
 
 class DocsListView(FilterParameters, ListView):
     """ Список документов"""
     # рабочие контракты, допы без КС
-    queryset = Docs.objects.filter(work_contract=True).exclude(type_doc=3)
+    queryset = Docs.objects.filter(stat_contract=2).exclude(type_doc=3)
     context_object_name = 'docs'
     template_name = 'docslist/docs_list.html'
     paginate_by = 5
@@ -111,7 +120,7 @@ class DocDetailView(DetailView):
         context['d_today'] = d_today
         # исполнение = сумма всех КС
         context['isp'] = 0
-        sum_isp = Docs.objects.filter(work_contract=True, type_doc=3, num_contract=kwargs['object'].num_contract).aggregate(Sum('c_contract'))
+        sum_isp = Docs.objects.filter(stat_contract=2, type_doc=3, num_contract=kwargs['object'].num_contract).aggregate(Sum('c_contract'))
         # проверка QuerySet []
         if sum_isp['c_contract__sum'] is None:
             context['isp'] = 0
@@ -121,7 +130,7 @@ class DocDetailView(DetailView):
         context['sum_ost'] = kwargs['object'].c_contract - context['isp']
 
         obj_key = self.kwargs.get('pk', None)
-        c_num = Docs.objects.filter(work_contract=True, id=obj_key).exclude(type_doc=3)
+        c_num = Docs.objects.filter(stat_contract=2, id=obj_key).exclude(type_doc=3)
         # if self.request.user.is_authenticated:
         #     return context
         # else:

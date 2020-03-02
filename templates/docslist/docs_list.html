@@ -38,7 +38,17 @@
                         {% endfor %}
                     </ul>
                 </div>
-
+            <h6> Статус :</h6>
+                <div>
+                    <ul>
+                        {% for doc in view.get_years %}
+                            <li class="editContent">
+                                <input type="checkbox" class="checked" name="year" value="{{ doc.year }}">
+                                <span class="span editContent">{{ doc.year }}</span>
+                            </li>
+                        {% endfor %}
+                    </ul>
+                </div>
             <button type="submit">Отбор</button>
             </form>
         </div>

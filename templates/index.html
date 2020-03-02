@@ -1,32 +1,46 @@
 {% extends "base.html" %}
 {% block content %}
 
-    <h2 class="mb-3">Государственные контракты (дополнительные соглашения) :</h2><hr>
+    <h2 class="mb-3">Государственные контракты (дополнительные соглашения) в работе :</h2><hr>
 
     <ul class="list-group">
       <li class="list-group-item d-flex justify-content-between align-items-center">
         <h5>Количество :</h5>
-        <span class="badge badge-secondary badge-pill">{{ id__count }}</span>
+        <h3><span class="badge badge-success badge-pill">{{ id__count }}</span></h3>
       </li>
       <li class="list-group-item d-flex justify-content-between align-items-center">
         <h5>Общая стоимость на ({{ date__today }}):</h5>
-        <span class="badge badge-secondary badge-pill">{{ ogk__sum }} руб.</span>
+        <h3><span class="badge badge-success badge-pill">{{ ogk__sum }} руб.</span></h3>
       </li>
     </ul>
     <br>
+    {% if signed__count %}
+        <h2 class="mb-3">Государственные контракты (дополнительные соглашения) подписаны :</h2><hr>
+            <ul class="list-group">
+               <li class="list-group-item d-flex justify-content-between align-items-center">
+                   <h5>Количество :</h5>
+                   <h3><span class="badge badge-primary badge-pill">{{ signed__count }}</span></h3>
+               </li>
+               <li class="list-group-item d-flex justify-content-between align-items-center">
+                   <h5>Общая стоимость на ({{ date__today }}):</h5>
+                   <h3><span class="badge badge-primary badge-pill">{{ signed__sum }} руб.</span></h3>
+            </li>
+        </ul>
+    {% endif %}
+    <br>
+    {% if fail__count %}
         <h2 class="mb-3">Срыв сроков :</h2><hr>
-
-    <ul class="list-group">
-      <li class="list-group-item d-flex justify-content-between align-items-center">
-        <h5>Количество :</h5>
-        <span class="badge badge-secondary badge-pill">{{ failures }}</span>
-      </li>
-      <li class="list-group-item d-flex justify-content-between align-items-center">
-        <h5>Общая стоимость на ({{ date__today }}):</h5>
-        <span class="badge badge-secondary badge-pill">{{ ogk__sum }} руб.</span>
-      </li>
-    </ul>
-
+            <ul class="list-group">
+              <li class="list-group-item d-flex justify-content-between align-items-center">
+                <h5>Количество :</h5>
+                <h3><span class="badge badge-danger badge-pill">{{ fail__count }}</span></h3>
+              </li>
+              <li class="list-group-item d-flex justify-content-between align-items-center">
+                <h5>Общая стоимость на ({{ date__today }}):</h5>
+                <h3><span class="badge badge-danger badge-pill">{{ fail__sum }} руб.</span></h3>
+              </li>
+            </ul>
+    {% endif %}
 
 
 {% endblock content %}
