@@ -34,6 +34,10 @@ class FilterParameters:
     def get_type(self):
         return TypeDoc.objects.exclude(id=3)
 
+    """статус документа"""
+    def get_status(self):
+        return StatusDoc.objects.all()
+
     # """год подписания документа"""
     # def get_isp(self):
     #     return Docs.objects.filter(work_contract=True, type_doc=3).aggregate(Sum('c_contract'))
@@ -87,7 +91,7 @@ class FilterDocsView(FilterParameters, ListView):
             Q(year__in=self.request.GET.getlist("year")) |
             Q(ini_contract__name__in=self.request.GET.getlist("initiator")) |
             Q(type_doc__name__in=self.request.GET.getlist("typedoc")) |
-            Q(failures__in=self.request.GET.getlist("failures"))
+            Q(stat_contract__name__in=self.request.GET.getlist("stat_contract"))
         ).distinct()
         return queryset
 
@@ -96,7 +100,7 @@ class FilterDocsView(FilterParameters, ListView):
         context["year"] = ''.join([f"year={x}&" for x in self.request.GET.getlist("year")])
         context["initiator"] = ''.join([f"initiator={x}&" for x in self.request.GET.getlist("initiator")])
         context["typedoc"] = ''.join([f"typedoc={x}&" for x in self.request.GET.getlist("typedoc")])
-        context["failures"] = ''.join([f"failures={x}&" for x in self.request.GET.getlist("failures")])
+        context["stat_contract"] = ''.join([f"stat_contract={x}&" for x in self.request.GET.getlist("stat_contract")])
         return context
 
 
